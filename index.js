@@ -1,38 +1,27 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+require('dotenv').config();
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'giftomizeofficial@gmail.com',
-    pass: 'drleikrucyhleqbc'
-  },
-  logger: true,
-  debug: true
-});
+const resend = new Resend('re_jR4bctsP_KCTypEph3zCdgSZ921RN8wct');
 
-app.get('/test-email', (req, res) => {
-  const mailOptions = {
-    from: 'giftomizeofficial@gmail.com',
-    to: 'sanjaychoudhury693@gmail.com',
-    subject: 'Giftomize Nodemailer Test Production',
-    text: 'Production server se email aa gaya hai!'
-  };
+app.get('/test-email', async (req, res) => {
+  try {
+    const data = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: 'sanjaychoudhury693@gmail.com',
+      subject: 'Hello World',
+      html: '<p>Congrats on sending your <strong>sanjay</strong>!</p>'
+    });
 
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      console.log(error);
-      res.status(500).send('Error aayi: ' + error.message);
-    } else {
-      console.log('Email sent: ' + info.response);
-      res.send('Email successfully bhej diya gaya hai!');
-    }
-  });
+    console.log('Email sent: ', data);
+    res.send('Email successfully bhej diya gaya hai!');
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error aayi: ' + error.message);
+  }
 });
 
 app.listen(PORT, () => {
